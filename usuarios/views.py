@@ -45,7 +45,7 @@ def register(request):
 
 def lista_usuarios(request):
     usuarios_lista = UserBlog.objects.all().order_by('username')
-    paginator = Paginator(usuarios_lista, 5)  # 10 usuários por página
+    paginator = Paginator(usuarios_lista, 1)  # 10 usuários por página
     
     page = request.GET.get('page', 1)
     

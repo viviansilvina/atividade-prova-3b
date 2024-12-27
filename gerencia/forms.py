@@ -1,5 +1,5 @@
 from django import forms
-from .models import Noticia
+from .models import Noticia, Categoria
 
 class NoticiaForm(forms.ModelForm):
     
@@ -45,3 +45,12 @@ class NoticiaFilterForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
   
+
+class CategoriaForm(forms.ModelForm):
+    
+    class Meta:
+        model = Categoria
+        fields = '__all__'
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}), 
+        }

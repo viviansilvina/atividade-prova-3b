@@ -1,8 +1,10 @@
 from django.shortcuts import render,redirect
-from .forms import NoticiaForm, NoticiaFilterForm
+from .forms import NoticiaForm, NoticiaFilterForm, CategoriaForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .models import Noticia, Categoria
+from django.core.paginator import Paginator
+
 
 # Create your views here.
 @login_required
@@ -30,6 +32,18 @@ def listagem_noticia(request):
     }
     return render(request, 'gerencia/listagem_noticia.html',contexto)
 
+def listagem_categoria(request):
+    lista_categorias = Categoria.objects.all()
+    paginator = Paginator(lista_categorias, 1)  # 10 usuários por página
+    
+    page = request.GET.get('page', 1)
+    
+    categorias = paginator.page(page)
+   
+    
+    return render(request, 'gerencia/listagem_categoria.html', {
+        'categorias': categorias
+    })
 
 def cadastrar_noticia(request):
     if request.method == 'POST':
@@ -44,6 +58,20 @@ def cadastrar_noticia(request):
 
     contexto = {'form': form}
     return render(request, 'gerencia/cadastro_noticia.html', contexto)
+
+def cadastrar_categoria(request):
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('gerencia:listagem_categoria')
+    else:
+        form = CategoriaForm()
+    
+    contexto = {
+        'form': form
+    }
+    return render(request, 'gerencia/cadastro_categoria.html', contexto)
 
 @login_required
 def editar_noticia(request, id):
@@ -63,8 +91,25 @@ def editar_noticia(request, id):
     }
     return render(request, 'gerencia/cadastro_noticia.html',contexto)
 
+def editar_categoria(request, id):
+    categoria = Categoria.objects.get(id=id)
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST, instance=categoria)
+        if form.is_valid():
+            form.save()
+            return redirect('gerencia:listagem_categoria')
+    else:
+        form = CategoriaForm(instance=categoria)
+    
+    contexto = {
+        'form': form
+    }
+    return render(request, 'gerencia/cadastro_categoria.html', contexto)
 
-
+def remover_categoria(request, id):
+    categoria = Categoria.objects.get(id=id)
+    categoria.delete()
+    return redirect('gerencia:listagem_categoria')
 
 def index(request):
     categoria_nome = request.GET.get('categoria')  # Obtém o parâmetro 'categoria' da URL
@@ -89,3 +134,4 @@ def index(request):
         'search_query': search_query,
     }
     return render(request, 'gerencia/index.html', contexto)
+
